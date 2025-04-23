@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codice Arduino</title>
+  <link rel="stylesheet" href="stile.css" />
+</head>
+<body>
+
+  <header class="main-header">
+    <h1>Spiegazione del Codice</h1>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="descrizione.html">Descrizione</a>
+    <a href="immagini.html">Immagini</a>
+    <a href="tinkercad.html">Tinkercad</a>
+    <a href="contatti.html">Contatti</a>
+  </nav>
+  
+  <p><a href="index.html">← Torna alla home</a></p>
+
+  <main class="contenuto">
+    <section>
+      <h2>Il codice spiegato</h2>
+      <pre>
+void setup() {
+  pinMode(13, OUTPUT); // Pin LED come uscita
+}
+
+void loop() {
+  digitalWrite(13, HIGH); // LED acceso
+  delay(1000);            // Attendi 1 sec
+  digitalWrite(13, LOW);  // LED spento
+  delay(1000);            // Attendi 1 sec
+}
+      </pre>
+      <p>Questo codice accende e spegne un LED ogni secondo usando Arduino UNO.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Progetto Arduino</p>
+  </footer>
+
+</body>
+</html>

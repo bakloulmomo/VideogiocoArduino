@@ -22,7 +22,7 @@ body {
 }
   
 .nav {
-    background-color: #006666;
+    background-color: #f9f9f9;
     display: flex;
     justify-content: center;
     gap: 1.5rem;

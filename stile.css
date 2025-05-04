@@ -3,35 +3,38 @@
     padding: 0;
     box-sizing: border-box;
 }
-  
+/* Resetta margini e padding di tutti gli elementi e imposta il box-sizing a border-box per calcolare larghezze e altezze includendo bordi e padding */
+
 html {
     scroll-behavior: smooth;
     font-family: Arial, sans-serif;
 }
-  
+/* Aggiunge uno scorrimento fluido alla pagina e imposta il font principale su Arial o sans-serif */
+
 body {
     background-color: #f9f9f9;
     color: #333;
 }
+/* Imposta il colore di sfondo del corpo della pagina e il colore del testo */
 
 main h2 {
     margin-bottom: 50px;
 }
-
+/* Aggiunge uno spazio sotto gli h2 all'interno di <main> */
 
 main p {
     margin-top: 50px;
 }
+/* Aggiunge uno spazio sopra ai paragrafi all'interno di <main> */
 
-
-  
 .main-header {
     background-color: #008080;
     color: white;
     padding: 2rem;
     text-align: center;
 }
-  
+/* Imposta lo sfondo e il colore del testo nell'intestazione principale e aggiunge del padding e centratura del testo */
+
 .nav {
     background-color: #006666;
     display: flex;
@@ -42,45 +45,53 @@ main p {
     top: 0;
     z-index: 10;
 }
-  
+/* Crea una barra di navigazione con uno sfondo verde scuro, centrata, con uno spazio tra i link e una posizione sticky per tenerla visibile durante lo scorrimento */
+
 .nav a {
     color: white;
     text-decoration: none;
     font-weight: bold;
 }
-  
+/* Imposta il colore dei link della barra di navigazione e rimuove la decorazione del testo, rendendo il testo in grassetto */
+
 .nav a:hover {
     text-decoration: underline;
 }
-  
+/* Aggiunge una sottolineatura ai link quando ci si passa sopra con il mouse */
+
 .contenuto {
     padding: 2rem;
     max-width: 1000px;
     margin: auto;
 }
-  
+/* Definisce il contenuto principale, con padding, una larghezza massima e centrato nella pagina */
+
 .sezione {
     margin-bottom: 3rem;
 }
-  
+/* Aggiunge uno spazio inferiore tra le sezioni */
+
 .sezione h2 {
     margin-bottom: 1rem;
     color: #004d4d;
 }
-  
+/* Aggiunge uno spazio sotto i titoli h2 all'interno delle sezioni e imposta il colore del testo */
+
 .galleria {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
 }
-  
+/* Crea una galleria di immagini con layout a flessibile, con uno spazio tra le immagini e con la possibilità di andare a capo se necessario */
+
 .box-img img {
     width: 100%;
     max-width: 400px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
-  
+/* Imposta le immagini nella galleria con una larghezza massima di 400px, bordi arrotondati e una leggera ombra per effetto estetico */
+
 pre {
     background-color: #eaeaea;
     padding: 1rem;
@@ -88,7 +99,8 @@ pre {
     overflow-x: auto;
     font-family: monospace;
 }
-  
+/* Definisce lo stile per i blocchi di codice, con un colore di sfondo chiaro, padding, bordi arrotondati, e scroll orizzontale se il testo è troppo lungo */
+
 .footer {
     background-color: #004d4d;
     color: white;
@@ -96,3 +108,5 @@ pre {
     padding: 1rem;
     margin-top: 2rem;
 }
+/* Crea il piè di pagina con uno sfondo scuro, testo bianco, centrato, e aggiunge un po' di padding e spazio sopra */
+

@@ -18,12 +18,12 @@ body {
 /* Imposta il colore di sfondo del corpo della pagina e il colore del testo */
 
 main h2 {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 /* Aggiunge uno spazio sotto gli h2 all'interno di <main> */
 
 main p {
-    margin-top: 50px;
+    margin-top: 30px;
 }
 /* Aggiunge uno spazio sopra ai paragrafi all'interno di <main> */
 

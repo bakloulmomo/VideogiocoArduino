@@ -26,382 +26,409 @@
     <section>
       <h2>Il codice spiegato</h2>
       <pre>
-        #include <LiquidCrystal.h>
-          #include <math.h>
-          
-          #define PIN_FOTORESISTORE A1       // Fotoresistore su A1
-          #define PIN_LED 7        // LED su pin digitale 7
-          #define SOGLIA_LUCE 450  // Soglia per decidere luce/buio
-          
-          #define PIN_BUZZER 8
-          #define PIN_PULSANTE 2
-          #define PIN_RIPRODUZIONE_AUTOMATICA 1
-          #define PIN_LETTURA_SCRITTURA 10
-          #define PIN_CONTRASTO 12
-          
-          #define SPRITE_CORSA1 1
-          #define SPRITE_CORSA2 2
-          #define SPRITE_SALTO 3
-          #define SPRITE_SALTO_SUPERIORE '.'         // Usa il carattere '.' per la testa
-          #define SPRITE_SALTO_INFERIORE 4
-          #define SPRITE_TERRENO_VUOTO ' '      // Usa il carattere ' '
-          #define SPRITE_TERRENO_PIENO 5
-          #define SPRITE_TERRENO_PIENO_DESTRA 6
-          #define SPRITE_TERRENO_PIENO_SINISTRA 7
-          
-          #define EROE_POSIZIONE_ORIZZONTALE 1    // Posizione orizzontale dell'eroe sullo schermo
-          
-          #define LARGHEZZA_TERRENO 16
-          #define TERRENO_VUOTO 0
-          #define TERRENO_BLOCCO_INFERIORE 1
-          #define TERRENO_BLOCCO_SUPERIORE 2
-          
-          #define EROE_POSIZIONE_SPENTO 0          // L'eroe è invisibile
-          #define EROE_POSIZIONE_CORSA_INFERIORE_1 1  // L'eroe sta correndo sulla riga inferiore (posa 1)
-          #define EROE_POSIZIONE_CORSA_INFERIORE_2 2  //                              (posa 2)
-          
-          #define EROE_POSIZIONE_SALTO_1 3       // Inizio di un salto
-          #define EROE_POSIZIONE_SALTO_2 4       // A metà altezza
-          #define EROE_POSIZIONE_SALTO_3 5       // Il salto è sulla riga superiore
-          #define EROE_POSIZIONE_SALTO_4 6       // Il salto è sulla riga superiore
-          #define EROE_POSIZIONE_SALTO_5 7       // Il salto è sulla riga superiore
-          #define EROE_POSIZIONE_SALTO_6 8       // Il salto è sulla riga superiore
-          #define EROE_POSIZIONE_SALTO_7 9       // A metà discesa
-          #define EROE_POSIZIONE_SALTO_8 10      // Sta per atterrare
-          
-          #define EROE_POSIZIONE_CORSA_SUPERIORE_1 11 // L'eroe sta correndo sulla riga superiore (posa 1)
-          #define EROE_POSIZIONE_CORSA_SUPERIORE_2 12 //                              (posa 2)
-          
-          unsigned long ultimoTempoLettura = 0;
-          const unsigned long intervalloLetturaTemperatura = 4000; // ogni 4 secondi
-          float temperaturaCorrente = 25.0;  // valore iniziale
-          int tempoRitardo = 100;       // ritardo tra i frame (regolato dalla temperatura)
-          
-          double Termistore(int ValoreADC){
-            double Temperatura;
-            Temperatura = log(10000.0 * ((1024.0 / ValoreADC) - 1));
-            Temperatura = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temperatura * Temperatura)) * Temperatura);
-            Temperatura = Temperatura - 273.15; // Celsius
-            return Temperatura;
+        #include &lt;LiquidCrystal.h>  // Libreria per controllare display LCD
+        #include &lt;math.h>           // Libreria per funzioni matematiche come log()
+        
+        // Definizione dei pin usati
+        #define PIN_FOTORESISTORE A1       // Fotoresistore collegato ad A1
+        #define PIN_LED 7                  // LED collegato al pin digitale 7
+        #define SOGLIA_LUCE 450            // Valore soglia per distinguere luce o buio
+        
+        #define PIN_BUZZER 8               // Buzzer sul pin 8
+        #define PIN_PULSANTE 2             // Pulsante sul pin 2
+        #define PIN_RIPRODUZIONE_AUTOMATICA 1 // Pin di riproduzione automatica
+        #define PIN_LETTURA_SCRITTURA 10   // Pin controllo lettura/scrittura per LCD
+        #define PIN_CONTRASTO 12           // Pin per regolare contrasto LCD
+        
+        // Definizione degli sprite (icone) usate nel gioco
+        #define SPRITE_CORSA1 1
+        #define SPRITE_CORSA2 2
+        #define SPRITE_SALTO 3
+        #define SPRITE_SALTO_SUPERIORE '.'         // Testa dell'eroe durante salto
+        #define SPRITE_SALTO_INFERIORE 4
+        #define SPRITE_TERRENO_VUOTO ' '           // Spazio vuoto
+        #define SPRITE_TERRENO_PIENO 5
+        #define SPRITE_TERRENO_PIENO_DESTRA 6
+        #define SPRITE_TERRENO_PIENO_SINISTRA 7
+        
+        #define EROE_POSIZIONE_ORIZZONTALE 1    // L'eroe è sempre alla colonna 1
+        
+        // Definizione dimensioni terreno
+        #define LARGHEZZA_TERRENO 16
+        #define TERRENO_VUOTO 0
+        #define TERRENO_BLOCCO_INFERIORE 1
+        #define TERRENO_BLOCCO_SUPERIORE 2
+        
+        // Definizione delle pose/posizioni dell'eroe
+        #define EROE_POSIZIONE_SPENTO 0          
+        #define EROE_POSIZIONE_CORSA_INFERIORE_1 1  
+        #define EROE_POSIZIONE_CORSA_INFERIORE_2 2  
+        #define EROE_POSIZIONE_SALTO_1 3       
+        #define EROE_POSIZIONE_SALTO_2 4       
+        #define EROE_POSIZIONE_SALTO_3 5       
+        #define EROE_POSIZIONE_SALTO_4 6       
+        #define EROE_POSIZIONE_SALTO_5 7       
+        #define EROE_POSIZIONE_SALTO_6 8       
+        #define EROE_POSIZIONE_SALTO_7 9       
+        #define EROE_POSIZIONE_SALTO_8 10      
+        #define EROE_POSIZIONE_CORSA_SUPERIORE_1 11 
+        #define EROE_POSIZIONE_CORSA_SUPERIORE_2 12 
+        
+        // Variabili per gestione temperatura e velocità gioco
+        unsigned long ultimoTempoLettura = 0;
+        const unsigned long intervalloLetturaTemperatura = 4000; // Ogni 4 secondi
+        float temperaturaCorrente = 25.0;  // Valore iniziale temperatura
+        int tempoRitardo = 100;            // Velocità gioco (frame rate)
+        
+        // Funzione che calcola la temperatura da un termistore
+        double Termistore(int ValoreADC){
+          double Temperatura;
+          Temperatura = log(10000.0 * ((1024.0 / ValoreADC) - 1));
+          Temperatura = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temperatura * Temperatura)) * Temperatura);
+          Temperatura = Temperatura - 273.15; // Conversione da Kelvin a Celsius
+          return Temperatura;
+        }
+        
+        // Inizializzazione oggetto LCD (pin collegati)
+        LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
+        
+        // Arrays per rappresentare il terreno
+        static char terrenoSuperiore[LARGHEZZA_TERRENO + 1];
+        static char terrenoInferiore[LARGHEZZA_TERRENO + 1];
+        static bool pulsantePremuto = false;  // Flag se il pulsante è stato premuto
+        
+        // Funzione per disegnare gli sprite sul display
+        void inizializzaGrafica(){
+          static byte grafica[] = {
+            // Sprite 1 - Corsa posizione 1
+            B01100,
+            B01100,
+            B00000,
+            B01110,
+            B11100,
+            B01100,
+            B11010,
+            B10011,
+            // Sprite 2 - Corsa posizione 2
+            B01100,
+            B01100,
+            B00000,
+            B01100,
+            B01100,
+            B01100,
+            B01100,
+            B01110,
+            // Sprite 3 - Salto
+            B01100,
+            B01100,
+            B00000,
+            B11110,
+            B01101,
+            B11111,
+            B10000,
+            B00000,
+            // Sprite 4 - Parte inferiore salto
+            B11110,
+            B01101,
+            B11111,
+            B10000,
+            B00000,
+            B00000,
+            B00000,
+            B00000,
+            // Sprite 5 - Terreno pieno
+            B11111,
+            B11111,
+            B11111,
+            B11111,
+            B11111,
+            B11111,
+            B11111,
+            B11111,
+            // Sprite 6 - Lato destro terreno
+            B00011,
+            B00011,
+            B00011,
+            B00011,
+            B00011,
+            B00011,
+            B00011,
+            B00011,
+            // Sprite 7 - Lato sinistro terreno
+            B11000,
+            B11000,
+            B11000,
+            B11000,
+            B11000,
+            B11000,
+            B11000,
+            B11000,
+          };
+          int i;
+          // Crea caratteri personalizzati nell’LCD (7 sprite)
+          for (i = 0; i < 7; ++i) {
+            lcd.createChar(i + 1, &grafica[i * 8]);
           }
-          
-          LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
-          static char terrenoSuperiore[LARGHEZZA_TERRENO + 1];
-          static char terrenoInferiore[LARGHEZZA_TERRENO + 1];
-          static bool pulsantePremuto = false;
-          
-          void inizializzaGrafica(){
-            static byte grafica[] = {
-              // Run position 1
-              B01100,
-              B01100,
-              B00000,
-              B01110,
-              B11100,
-              B01100,
-              B11010,
-              B10011,
-              // Run position 2
-              B01100,
-              B01100,
-              B00000,
-              B01100,
-              B01100,
-              B01100,
-              B01100,
-              B01110,
-              // Jump
-              B01100,
-              B01100,
-              B00000,
-              B11110,
-              B01101,
-              B11111,
-              B10000,
-              B00000,
-              // Jump lower
-              B11110,
-              B01101,
-              B11111,
-              B10000,
-              B00000,
-              B00000,
-              B00000,
-              B00000,
-              // Ground
-              B11111,
-              B11111,
-              B11111,
-              B11111,
-              B11111,
-              B11111,
-              B11111,
-              B11111,
-              // Ground right
-              B00011,
-              B00011,
-              B00011,
-              B00011,
-              B00011,
-              B00011,
-              B00011,
-              B00011,
-              // Ground left
-              B11000,
-              B11000,
-              B11000,
-              B11000,
-              B11000,
-              B11000,
-              B11000,
-              B11000,
-            };
-            int i;
-            // Salta l'uso del carattere 0, questo permette a lcd.print() di essere usato per
-            // disegnare velocemente più caratteri
-            for (i = 0; i < 7; ++i) {
-              lcd.createChar(i + 1, &grafica[i * 8]);
-            }
-            for (i = 0; i < LARGHEZZA_TERRENO; ++i) {
-              terrenoSuperiore[i] = SPRITE_TERRENO_VUOTO;
-              terrenoInferiore[i] = SPRITE_TERRENO_VUOTO;
+          // Inizializza il terreno vuoto
+          for (i = 0; i &lt; LARGHEZZA_TERRENO; ++i) {
+            terrenoSuperiore[i] = SPRITE_TERRENO_VUOTO;
+            terrenoInferiore[i] = SPRITE_TERRENO_VUOTO;
+          }
+        }
+        
+        // Funzione che fa scorrere il terreno a sinistra
+        void avanzaTerreno(char* terreno, byte nuovoTerreno){
+          for (int i = 0; i &lt; LARGHEZZA_TERRENO; i++) {
+            char corrente = terreno[i];
+            char prossimo = (i == LARGHEZZA_TERRENO-1) ? nuovoTerreno : terreno[i+1];
+            switch (corrente){
+              case SPRITE_TERRENO_VUOTO:
+                terreno[i] = (prossimo == SPRITE_TERRENO_PIENO) ? SPRITE_TERRENO_PIENO_DESTRA : SPRITE_TERRENO_VUOTO;
+                break;
+              case SPRITE_TERRENO_PIENO:
+                terreno[i] = (prossimo == SPRITE_TERRENO_VUOTO) ? SPRITE_TERRENO_PIENO_SINISTRA : SPRITE_TERRENO_PIENO;
+                break;
+              case SPRITE_TERRENO_PIENO_DESTRA:
+                terreno[i] = SPRITE_TERRENO_PIENO;
+                break;
+              case SPRITE_TERRENO_PIENO_SINISTRA:
+                terreno[i] = SPRITE_TERRENO_VUOTO;
+                break;
             }
           }
-          
-          // Fa scorrere il terreno a sinistra in incrementi di mezzo carattere
-          //
-          void avanzaTerreno(char* terreno, byte nuovoTerreno){
-            for (int i = 0; i < LARGHEZZA_TERRENO; i++) {
-              char corrente = terreno[i];
-              char prossimo = (i == LARGHEZZA_TERRENO-1) ? nuovoTerreno : terreno[i+1];
-              switch (corrente){
-                case SPRITE_TERRENO_VUOTO:
-                  terreno[i] = (prossimo == SPRITE_TERRENO_PIENO) ? SPRITE_TERRENO_PIENO_DESTRA : SPRITE_TERRENO_VUOTO;
-                  break;
-                case SPRITE_TERRENO_PIENO:
-                  terreno[i] = (prossimo == SPRITE_TERRENO_VUOTO) ? SPRITE_TERRENO_PIENO_SINISTRA : SPRITE_TERRENO_PIENO;
-                  break;
-                case SPRITE_TERRENO_PIENO_DESTRA:
-                  terreno[i] = SPRITE_TERRENO_PIENO;
-                  break;
-                case SPRITE_TERRENO_PIENO_SINISTRA:
-                  terreno[i] = SPRITE_TERRENO_VUOTO;
-                  break;
-              }
-            }
+        }
+        
+        // Funzione per disegnare l’eroe e verificare collisioni
+        bool disegnaEroe(byte posizione, char* terrenoSuperiore, char* terrenoInferiore, unsigned int punteggio) {
+          bool collisione = false;
+        
+          // Salva lo stato attuale del terreno
+          char superioreSalvato = terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE];
+          char inferioreSalvato = terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE];
+        
+          byte superiore, inferiore;
+        
+          // Scegli sprite in base alla posizione dell’eroe
+          switch (posizione) {
+            case EROE_POSIZIONE_SPENTO:
+              superiore = inferiore = SPRITE_TERRENO_VUOTO;
+              break;
+            case EROE_POSIZIONE_CORSA_INFERIORE_1:
+              superiore = SPRITE_TERRENO_VUOTO;
+              inferiore = SPRITE_CORSA1;
+              break;
+            case EROE_POSIZIONE_CORSA_INFERIORE_2:
+              superiore = SPRITE_TERRENO_VUOTO;
+              inferiore = SPRITE_CORSA2;
+              break;
+            case EROE_POSIZIONE_SALTO_1:
+            case EROE_POSIZIONE_SALTO_8:
+              superiore = SPRITE_TERRENO_VUOTO;
+              inferiore = SPRITE_SALTO;
+              break;
+            case EROE_POSIZIONE_SALTO_2:
+            case EROE_POSIZIONE_SALTO_7:
+              superiore = SPRITE_SALTO_SUPERIORE;
+              inferiore = SPRITE_SALTO_INFERIORE;
+              break;
+            case EROE_POSIZIONE_SALTO_3:
+            case EROE_POSIZIONE_SALTO_4:
+            case EROE_POSIZIONE_SALTO_5:
+            case EROE_POSIZIONE_SALTO_6:
+              superiore = SPRITE_SALTO;
+              inferiore = SPRITE_TERRENO_VUOTO;
+              break;
+            case EROE_POSIZIONE_CORSA_SUPERIORE_1:
+              superiore = SPRITE_CORSA1;
+              inferiore = SPRITE_TERRENO_VUOTO;
+              break;
+            case EROE_POSIZIONE_CORSA_SUPERIORE_2:
+              superiore = SPRITE_CORSA2;
+              inferiore = SPRITE_TERRENO_VUOTO;
+              break;
           }
-          
-          bool disegnaEroe(byte posizione, char* terrenoSuperiore, char* terrenoInferiore, unsigned int punteggio) {
-            bool collisione = false;
-            char superioreSalvato = terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE];
-            char inferioreSalvato = terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE];
-            byte superiore, inferiore;
-            switch (posizione) {
-              case EROE_POSIZIONE_SPENTO:
-                superiore = inferiore = SPRITE_TERRENO_VUOTO;
-                break;
-              case EROE_POSIZIONE_CORSA_INFERIORE_1:
-                superiore = SPRITE_TERRENO_VUOTO;
-                inferiore = SPRITE_CORSA1;
-                break;
-              case EROE_POSIZIONE_CORSA_INFERIORE_2:
-                superiore = SPRITE_TERRENO_VUOTO;
-                inferiore = SPRITE_CORSA2;
-                break;
-              case EROE_POSIZIONE_SALTO_1:
-              case EROE_POSIZIONE_SALTO_8:
-                superiore = SPRITE_TERRENO_VUOTO;
-                inferiore = SPRITE_SALTO;
-                break;
-              case EROE_POSIZIONE_SALTO_2:
-              case EROE_POSIZIONE_SALTO_7:
-                superiore = SPRITE_SALTO_SUPERIORE;
-                inferiore = SPRITE_SALTO_INFERIORE;
-                break;
-              case EROE_POSIZIONE_SALTO_3:
-              case EROE_POSIZIONE_SALTO_4:
-              case EROE_POSIZIONE_SALTO_5:
-              case EROE_POSIZIONE_SALTO_6:
-                superiore = SPRITE_SALTO;
-                inferiore = SPRITE_TERRENO_VUOTO;
-                break;
-              case EROE_POSIZIONE_CORSA_SUPERIORE_1:
-                superiore = SPRITE_CORSA1;
-                inferiore = SPRITE_TERRENO_VUOTO;
-                break;
-              case EROE_POSIZIONE_CORSA_SUPERIORE_2:
-                superiore = SPRITE_CORSA2;
-                inferiore = SPRITE_TERRENO_VUOTO;
-                break;
-            }
-            if (superiore != ' ') {
-              terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE] = superiore;
-              collisione = (superioreSalvato == SPRITE_TERRENO_VUOTO) ? false : true;
-            }
-            if (inferiore != ' ') {
-              terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] = inferiore;
-              collisione |= (inferioreSalvato == SPRITE_TERRENO_VUOTO) ? false : true;
-            }
-          
-            byte cifre = (punteggio > 9999) ? 5 : (punteggio > 999) ? 4 : (punteggio > 99) ? 3 : (punteggio > 9) ? 2 : 1;
-          
-            // Disegna la scena
-            terrenoSuperiore[LARGHEZZA_TERRENO] = '\0';
-            terrenoInferiore[LARGHEZZA_TERRENO] = '\0';
-            char temp = terrenoSuperiore[16-cifre];
-            terrenoSuperiore[16-cifre] = '\0';
-            lcd.setCursor(0,0);
-            lcd.print(terrenoSuperiore);
-            terrenoSuperiore[16-cifre] = temp;
-            lcd.setCursor(0,1);
-            lcd.print(terrenoInferiore);
-          
-            lcd.setCursor(16 - cifre,0);
-            lcd.print(punteggio);
-          
-            terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE] = superioreSalvato;
-            terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] = inferioreSalvato;
-            return collisione;
+        
+          // Disegna l’eroe sul terreno e verifica collisione
+          if (superiore != ' ') {
+            terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE] = superiore;
+            collisione = (superioreSalvato == SPRITE_TERRENO_VUOTO) ? false : true;
           }
-          
-          // Gestisci la pressione del pulsante come un interrupt
-          void gestionePressionePulsante() {
-            pulsantePremuto = true;
+          if (inferiore != ' ') {
+            terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] = inferiore;
+            collisione |= (inferioreSalvato == SPRITE_TERRENO_VUOTO) ? false : true;
           }
-          
-          
-          void setup(){
-          
-            pinMode(PIN_LED, OUTPUT);
-          
-            pinMode(PIN_BUZZER, OUTPUT);
-          
-          
-            pinMode(PIN_LETTURA_SCRITTURA, OUTPUT);
-            digitalWrite(PIN_LETTURA_SCRITTURA, LOW);
-            pinMode(PIN_CONTRASTO, OUTPUT);
-            digitalWrite(PIN_CONTRASTO, LOW);
-            pinMode(PIN_PULSANTE, INPUT);
-            digitalWrite(PIN_PULSANTE, HIGH);
-            pinMode(PIN_RIPRODUZIONE_AUTOMATICA, OUTPUT);
-            digitalWrite(PIN_RIPRODUZIONE_AUTOMATICA, HIGH);
-          
-            // Il pin digitale 2 corrisponde all'interrupt 0
-            attachInterrupt(0/*PIN_PULSANTE*/, gestionePressionePulsante, FALLING);
-          
-            inizializzaGrafica();
-          
-            lcd.begin(16, 2);
-          
-          }
-          
-          void loop(){
-          
-            static int ultimoPunteggioSuonato = -1;
-          
-            static byte eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
-            static byte nuovoTipoTerreno = TERRENO_VUOTO;
-            static byte nuovaDurataTerreno = 1;
-            static bool inGioco = false;
-            static bool lampeggio = false;
-            static unsigned int distanza = 0;
-            static unsigned int ultimoBeepPunteggio = 0;
-          
-            if (!inGioco) {
-              disegnaEroe((lampeggio) ? EROE_POSIZIONE_SPENTO : eroePos, terrenoSuperiore, terrenoInferiore, distanza >> 3);
-              if (lampeggio) {
-                lcd.setCursor(0,0);
-                lcd.print("Game Over");
-              }
-              delay(250);
-              lampeggio = !lampeggio;
-              if (pulsantePremuto) {
-                inizializzaGrafica();
-                eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
-                inGioco = true;
-                pulsantePremuto = false;
-                distanza = 0;
-              }
-              return;
+        
+          // Calcola quante cifre mostrare del punteggio
+          byte cifre = (punteggio > 9999) ? 5 : (punteggio > 999) ? 4 : (punteggio > 99) ? 3 : (punteggio > 9) ? 2 : 1;
+        
+          // Aggiunge terminatore stringa e stampa il terreno
+          terrenoSuperiore[LARGHEZZA_TERRENO] = '\0';
+          terrenoInferiore[LARGHEZZA_TERRENO] = '\0';
+        
+          // Stampa prima riga terreno superiore
+          char temp = terrenoSuperiore[16-cifre];
+          terrenoSuperiore[16-cifre] = '\0';
+          lcd.setCursor(0,0);
+          lcd.print(terrenoSuperiore);
+          terrenoSuperiore[16-cifre] = temp;
+        
+          // Stampa seconda riga terreno inferiore
+          lcd.setCursor(0,1);
+          lcd.print(terrenoInferiore);
+        
+          // Stampa punteggio in alto a destra
+          lcd.setCursor(16 - cifre,0);
+          lcd.print(punteggio);
+        
+          // Ripristina terreno originale
+          terrenoSuperiore[EROE_POSIZIONE_ORIZZONTALE] = superioreSalvato;
+          terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] = inferioreSalvato;
+        
+          return collisione;
+        }
+        
+        // Funzione che viene chiamata quando premi il pulsante
+        void gestionePressionePulsante() {
+          pulsantePremuto = true;
+        }
+        
+        void setup(){
+          // Imposta i pin
+          pinMode(PIN_LED, OUTPUT);
+          pinMode(PIN_BUZZER, OUTPUT);
+          pinMode(PIN_LETTURA_SCRITTURA, OUTPUT);
+          digitalWrite(PIN_LETTURA_SCRITTURA, LOW);
+          pinMode(PIN_CONTRASTO, OUTPUT);
+          digitalWrite(PIN_CONTRASTO, LOW);
+        
+          // Imposta il pulsante come INPUT con pullup interno
+          pinMode(PIN_PULSANTE, INPUT);
+          digitalWrite(PIN_PULSANTE, HIGH);
+        
+          pinMode(PIN_RIPRODUZIONE_AUTOMATICA, OUTPUT);
+          digitalWrite(PIN_RIPRODUZIONE_AUTOMATICA, HIGH);
+        
+          // Imposta interrupt sul pulsante (pin 2 corrisponde a interrupt 0)
+          attachInterrupt(0, gestionePressionePulsante, FALLING);
+        
+          // Inizializza grafica sprite e LCD
+          inizializzaGrafica();
+          lcd.begin(16, 2);  // Display 16 colonne x 2 righe
+        }
+        void loop() {
+          static int ultimoPunteggioSuonato = -1;
+          static byte eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
+          static byte nuovoTipoTerreno = TERRENO_VUOTO;
+          static byte nuovaDurataTerreno = 1;
+          static bool inGioco = false;
+          static bool lampeggio = false;
+          static unsigned int distanza = 0;
+        
+          static unsigned int ultimoBeepPunteggio = 0;
+        
+          if (!inGioco) {
+            disegnaEroe((lampeggio) ? EROE_POSIZIONE_SPENTO : eroePos, terrenoSuperiore, terrenoInferiore, distanza >> 3);
+            if (lampeggio) {
+              lcd.setCursor(0, 0);
+              lcd.print("Game Over      ");
             }
-          
-            // Sposta il terreno a sinistra
-            avanzaTerreno(terrenoInferiore, nuovoTipoTerreno == TERRENO_BLOCCO_INFERIORE ? SPRITE_TERRENO_PIENO : SPRITE_TERRENO_VUOTO);
-            avanzaTerreno(terrenoSuperiore, nuovoTipoTerreno == TERRENO_BLOCCO_SUPERIORE ? SPRITE_TERRENO_PIENO : SPRITE_TERRENO_VUOTO);
-          
-            // Crea un nuovo terreno in entrata a destra
-            if (--nuovaDurataTerreno == 0) {
-              if (nuovoTipoTerreno == TERRENO_VUOTO) {
-                nuovoTipoTerreno = (random(3) == 0) ? TERRENO_BLOCCO_SUPERIORE : TERRENO_BLOCCO_INFERIORE;
-                nuovaDurataTerreno = 2 + random(10);
-              } else {
-                nuovoTipoTerreno = TERRENO_VUOTO;
-                nuovaDurataTerreno = 10 + random(10);
-              }
-            }
-          
+            delay(250);
+            lampeggio = !lampeggio;
             if (pulsantePremuto) {
-              if (eroePos <= EROE_POSIZIONE_CORSA_INFERIORE_2) eroePos = EROE_POSIZIONE_SALTO_1;
+              inizializzaGrafica();
+              eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
+              inGioco = true;
               pulsantePremuto = false;
+              distanza = 0;
             }
-          
-            if (disegnaEroe(eroePos, terrenoSuperiore, terrenoInferiore, distanza >> 3)) {
-              inGioco = false; // L'eroe ha colpito qualcosa. Peccato.
+            return;
+          }
+        
+          // Sposta il terreno a sinistra
+          avanzaTerreno(terrenoInferiore, nuovoTipoTerreno == TERRENO_BLOCCO_INFERIORE ? SPRITE_TERRENO_PIENO : SPRITE_TERRENO_VUOTO);
+          avanzaTerreno(terrenoSuperiore, nuovoTipoTerreno == TERRENO_BLOCCO_SUPERIORE ? SPRITE_TERRENO_PIENO : SPRITE_TERRENO_VUOTO);
+        
+          // Crea nuovo terreno
+          if (--nuovaDurataTerreno == 0) {
+            if (nuovoTipoTerreno == TERRENO_VUOTO) {
+              nuovoTipoTerreno = (random(3) == 0) ? TERRENO_BLOCCO_SUPERIORE : TERRENO_BLOCCO_INFERIORE;
+              nuovaDurataTerreno = 2 + random(10);
             } else {
-              if (eroePos == EROE_POSIZIONE_CORSA_INFERIORE_2 || eroePos == EROE_POSIZIONE_SALTO_8) {
-                eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
-              } else if ((eroePos >= EROE_POSIZIONE_SALTO_3 && eroePos <= EROE_POSIZIONE_SALTO_5) && terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] != SPRITE_TERRENO_VUOTO) {
-                eroePos = EROE_POSIZIONE_CORSA_SUPERIORE_1;
-              } else if (eroePos >= EROE_POSIZIONE_CORSA_SUPERIORE_1 && terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] == SPRITE_TERRENO_VUOTO) {
-                eroePos = EROE_POSIZIONE_SALTO_5;
-              } else if (eroePos == EROE_POSIZIONE_CORSA_SUPERIORE_2) {
-                eroePos = EROE_POSIZIONE_CORSA_SUPERIORE_1;
-              } else {
-                eroePos++;
-              }
-              distanza++;
-          
-              int punteggioCorrente = distanza >> 3;
+              nuovoTipoTerreno = TERRENO_VUOTO;
+              nuovaDurataTerreno = 10 + random(10);
+            }
+          }
+        
+          // Gestione salto
+          if (pulsantePremuto) {
+            if (eroePos <= EROE_POSIZIONE_CORSA_INFERIORE_2) eroePos = EROE_POSIZIONE_SALTO_1;
+            pulsantePremuto = false;
+          }
+        
+          // Disegna eroe e controlla collisione
+          if (disegnaEroe(eroePos, terrenoSuperiore, terrenoInferiore, distanza >> 3)) {
+            inGioco = false;  // Game over
+          } else {
+            // Logica movimento eroe
+            if (eroePos == EROE_POSIZIONE_CORSA_INFERIORE_2 || eroePos == EROE_POSIZIONE_SALTO_8) {
+              eroePos = EROE_POSIZIONE_CORSA_INFERIORE_1;
+            } else if ((eroePos >= EROE_POSIZIONE_SALTO_3 && eroePos <= EROE_POSIZIONE_SALTO_5) &&
+                       terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] != SPRITE_TERRENO_VUOTO) {
+              eroePos = EROE_POSIZIONE_CORSA_SUPERIORE_1;
+            } else if (eroePos >= EROE_POSIZIONE_CORSA_SUPERIORE_1 &&
+                       terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE] == SPRITE_TERRENO_VUOTO) {
+              eroePos = EROE_POSIZIONE_SALTO_5;
+            } else if (eroePos == EROE_POSIZIONE_CORSA_SUPERIORE_2) {
+              eroePos = EROE_POSIZIONE_CORSA_SUPERIORE_1;
+            } else {
+              eroePos++;
+            }
+        
+            distanza++;
+        
+            int punteggioCorrente = distanza >> 3;
             if (punteggioCorrente % 50 == 0 && punteggioCorrente != ultimoPunteggioSuonato) {
-              tone(PIN_BUZZER, 1000, 300); // suono a 1000 Hz per 100 ms
+              tone(PIN_BUZZER, 1000, 300); // Beep ogni 50 punti
               ultimoPunteggioSuonato = punteggioCorrente;
             }
-          
-              digitalWrite(PIN_RIPRODUZIONE_AUTOMATICA, terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE + 2] == SPRITE_TERRENO_VUOTO ? HIGH : LOW);
+        
+            digitalWrite(PIN_RIPRODUZIONE_AUTOMATICA,
+                         terrenoInferiore[EROE_POSIZIONE_ORIZZONTALE + 2] == SPRITE_TERRENO_VUOTO ? HIGH : LOW);
           }
-          
-          
-          
+        
+          // Lettura temperatura e modifica velocità
           unsigned long ora = millis();
           if (ora - ultimoTempoLettura >= intervalloLetturaTemperatura) {
             ultimoTempoLettura = ora;
-          
-            int valoreCrudo = analogRead(A0);  // Lettura del termistore
+        
+            int valoreCrudo = analogRead(A0);  // Lettura termistore
             float t = Termistore(valoreCrudo);
             if (!isnan(t)) {
               temperaturaCorrente = t;
-              tempoRitardo = map((int)temperaturaCorrente, 15, 30, 500, 100); // range da freddo a caldo
+              tempoRitardo = map((int)temperaturaCorrente, 15, 30, 500, 100);  // da lento (freddo) a veloce (caldo)
               tempoRitardo = constrain(tempoRitardo, 50, 500);
-          
-              //Debug su LCD (opzionale)
+        
+              // Mostra temperatura su LCD
               lcd.setCursor(0, 0);
               lcd.print("Temp:");
               lcd.print(temperaturaCorrente, 1);
-              lcd.print((char)223); // simbolo °
-              lcd.print("C");    // spazi per pulire
+              lcd.print((char)223);  // simbolo °
+              lcd.print("C  ");
             }
-            }
-            delay(tempoRitardo);
-          
-            int livelloLuce = analogRead(PIN_FOTORESISTORE);
-            if (livelloLuce < SOGLIA_LUCE) {
-            digitalWrite(PIN_LED, HIGH);  // Accendi il LED se è buio
-            } else {
-            digitalWrite(PIN_LED, LOW);   // Spegni il LED se c'è luce
-              }
           }
+        
+          delay(tempoRitardo);
+        
+          // Gestione luce ambientale
+          int livelloLuce = analogRead(PIN_FOTORESISTORE);
+          if (livelloLuce &lt; SOGLIA_LUCE) {
+            digitalWrite(PIN_LED, HIGH);  // Buio -> accendi LED
+          } else {
+            digitalWrite(PIN_LED, LOW);   // Luce -> spegni LED
+          }
+        }
+
       </pre>
-  </main>
 
   <footer class="footer">
     <p>&copy; 2025 Progetto Arduino</p>

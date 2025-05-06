@@ -102,6 +102,19 @@ pre {
 }
 /* Definisce lo stile per i blocchi di codice, con un colore di sfondo chiaro, padding, bordi arrotondati, e scroll orizzontale se il testo è troppo lungo */
 
+ul {
+    list-style-type: square;
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+}
+/* per l'elenco*/
+
+li {
+    margin-bottom: 0.5rem;
+}
+/* per l'elenco*/
+
+
 .footer {
     background-color: #004d4d;
     color: white;
